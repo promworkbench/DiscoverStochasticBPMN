@@ -1,0 +1,81 @@
+package org.processmining.newpackageivy.dialogs;
+
+import org.deckfour.uitopia.api.event.TaskListener;
+import org.processmining.contexts.uitopia.UIPluginContext;
+import org.processmining.framework.plugin.PluginContext;
+import org.processmining.framework.util.ui.widgets.LeftAlignedHeader;
+import org.processmining.newpackageivy.models.DiscoverStochasticBPMN_Configuration;
+import org.processmining.newpackageivy.plugins.DiscoverStochasticBPMN_Plugin;
+import org.processmining.uma.util.ui.widgets.ProMPropertiesPanel;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
+    private final javax.swing.JComboBox<String> alignmentType;
+
+    private static final String DIALOG_NAME = "Options for calculating probabilities";
+
+    public DiscoverStochasticBPMN_UI(DiscoverStochasticBPMN_Configuration config){
+        super(null);
+
+        addToProperties(new LeftAlignedHeader(DIALOG_NAME));
+        addToProperties(Box.createVerticalStrut(15));
+
+        JLabel optionsLabel = new JLabel("Which alignments shall be considered for probability?");
+        optionsLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        optionsLabel.setMaximumSize(new Dimension(1000, 20));
+        addToProperties(optionsLabel);
+        String[] labelValues = {
+                "Only perfectly fitting traces", //calculationType_PERFECTLYFIT,
+                "Only synchronous moves of all traces", //calculationType_SYNCHRONOUS,
+                "All moves of all traces", //calculationType_ALL
+        };
+//        alignmentType = addComboBox("From Alignments, use", labelValues, 1, 400);
+        alignmentType = new JComboBox<>(labelValues);
+        alignmentType.setSelectedIndex(config.calculateProbabilityUsing.ordinal());
+        addToProperties(alignmentType);
+    }
+
+
+    /**
+     * Open UI dialogue to populate the given configuration object with
+     * settings chosen by the user.
+     *
+     * @param context
+     * @param config
+     * @return result of the user interaction
+     */
+    public TaskListener.InteractionResult setParameters(UIPluginContext context, DiscoverStochasticBPMN_Configuration config) {
+        TaskListener.InteractionResult wish = getUserChoice(context);
+        if (wish != TaskListener.InteractionResult.CANCEL) getChosenParameters(config);
+        return wish;
+    }
+
+    /**
+     * @return Configuration as picked in the user interface, call only after
+     *         {@link #getUserChoice(UIPluginContext)} was called
+     */
+    private void getChosenParameters(DiscoverStochasticBPMN_Configuration config) {
+        config.calculateProbabilityUsing = DiscoverStochasticBPMN_Configuration.typeValue.values()[alignmentType.getSelectedIndex()];
+    }
+
+    /**
+     * display a dialog to ask user what to do
+     *
+     * @param context
+     * @return
+     */
+    protected TaskListener.InteractionResult getUserChoice(UIPluginContext context) {
+        return context.showConfiguration("Get Probabilities using Alignments", this);
+    }
+
+    /**
+     * Generate proper cancelling information for User.
+     * @param context
+     * @return
+     */
+    protected Object[] userCancel(PluginContext context) {
+        return DiscoverStochasticBPMN_Plugin.cancel(context, "The user has cancelled DiscoverStochasticBPMN.");
+    }
+}
