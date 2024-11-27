@@ -1,17 +1,15 @@
-package org.processmining.newpackageivy.models;
+package org.processmining.discoverstochasticbpmn.models;
 
 public class DiscoverStochasticBPMN_Configuration {
-//    public DiscoverStochasticBPMN_Configuration.typeValue calculateProbabilityUsing;
-//
-//    public DiscoverStochasticBPMN_Configuration() {
-//        this.calculateProbabilityUsing = DiscoverStochasticBPMN_Configuration.typeValue.calculationType_PERFECTLYFIT;
-//    }
-
     public static enum typeValue {
         calculationType_PERFECTLYFIT,
         calculationType_SYNCHRONOUS,
         calculationType_ALL;
     }
 
-    public typeValue calculateProbabilityUsing = typeValue.calculationType_PERFECTLYFIT;
+    public typeValue calculateProbabilityUsing;
+
+    public DiscoverStochasticBPMN_Configuration() {
+        this.calculateProbabilityUsing = typeValue.calculationType_PERFECTLYFIT;
+    }
 }

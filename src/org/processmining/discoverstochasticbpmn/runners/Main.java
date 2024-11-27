@@ -1,4 +1,4 @@
-package org.processmining.newpackageivy.runners;
+package org.processmining.discoverstochasticbpmn.runners;
 
 import org.deckfour.xes.extension.std.XConceptExtension;
 import org.deckfour.xes.model.XLog;

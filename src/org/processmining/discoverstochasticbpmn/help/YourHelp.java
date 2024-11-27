@@ -1,4 +1,4 @@
-package org.processmining.newpackageivy.help;
+package org.processmining.discoverstochasticbpmn.help;
 
 public class YourHelp {
 

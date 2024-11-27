@@ -1,11 +1,11 @@
-package org.processmining.newpackageivy.dialogs;
+package org.processmining.discoverstochasticbpmn.dialogs;
 
 import org.deckfour.uitopia.api.event.TaskListener;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.widgets.LeftAlignedHeader;
-import org.processmining.newpackageivy.models.DiscoverStochasticBPMN_Configuration;
-import org.processmining.newpackageivy.plugins.DiscoverStochasticBPMN_Plugin;
+import org.processmining.discoverstochasticbpmn.models.DiscoverStochasticBPMN_Configuration;
+import org.processmining.discoverstochasticbpmn.plugins.DiscoverStochasticBPMN_Plugin;
 import org.processmining.uma.util.ui.widgets.ProMPropertiesPanel;
 
 import javax.swing.*;
@@ -20,16 +20,17 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
         super(null);
 
         addToProperties(new LeftAlignedHeader(DIALOG_NAME));
-        addToProperties(Box.createVerticalStrut(15));
+        addToProperties(Box.createVerticalStrut(20));
 
         JLabel optionsLabel = new JLabel("Which alignments shall be considered for probability?");
         optionsLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        optionsLabel.setMaximumSize(new Dimension(1000, 20));
+        optionsLabel.setMaximumSize(new Dimension(1000, 30));
         addToProperties(optionsLabel);
+        addToProperties(Box.createVerticalStrut(10));
         String[] labelValues = {
                 "Only perfectly fitting traces", //calculationType_PERFECTLYFIT,
                 "Only synchronous moves of all traces", //calculationType_SYNCHRONOUS,
-                "All moves of all traces", //calculationType_ALL
+                "Synchronous and model moves of all traces", //calculationType_ALL
         };
 //        alignmentType = addComboBox("From Alignments, use", labelValues, 1, 400);
         alignmentType = new JComboBox<>(labelValues);
@@ -67,7 +68,7 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
      * @return
      */
     protected TaskListener.InteractionResult getUserChoice(UIPluginContext context) {
-        return context.showConfiguration("Get Probabilities using Alignments", this);
+        return context.showConfiguration("Calculate Probabilities from Alignments", this);
     }
 
     /**
