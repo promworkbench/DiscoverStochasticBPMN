@@ -11,6 +11,7 @@ import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMLogNotFiltered;
 import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMMove;
 import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMTrace;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class GatewayProbabilityCalculator {
 
     public void incrementCounts(XORChoiceMap.TransitionCounts transitionCounts){
 //        System.out.println("Successfully entered the method incrementCounts");
-        transitionCounts.setCount(transitionCounts.getCount() + 1);
+        transitionCounts.setCount(transitionCounts.getCount().add(BigDecimal.ONE));
     }
 
     private void updateGatewayProbabilities(Map<Gateway, XORChoiceMap> gatewayMap) {

@@ -7,6 +7,7 @@ import org.deckfour.uitopia.api.event.TaskListener;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
+import org.processmining.discoverstochasticbpmn.algorithms.translateToSBPMN;
 import org.processmining.discoverstochasticbpmn.dialogs.DiscoverStochasticBPMN_UI;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.Progress;
@@ -29,6 +30,7 @@ import org.processmining.plugins.converters.bpmn2pn.BPMN2PetriNetConverter_Confi
 import org.processmining.discoverstochasticbpmn.algorithms.AlignmentUtil;
 import org.processmining.plugins.inductiveVisualMiner.helperClasses.IvMModel;
 import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMLogNotFiltered;
+import org.processmining.stochasticbpmn.models.graphbased.directed.bpmn.stochastic.StochasticBPMNDiagram;
 
 import javax.swing.*;
 
@@ -39,7 +41,7 @@ import javax.swing.*;
  */
 
 @Plugin(name = "Discover Stochastic BPMN", parameterLabels = { "BPMN Model", "Event Log" },
-	    returnLabels = { "BPMN Diagram", "Gateway Probability Map" }, returnTypes = { BPMNDiagram.class, Map.class },
+	    returnLabels = { "Stochastic BPMN Diagram", "Gateway Probability Map" }, returnTypes = { StochasticBPMNDiagram.class, Map.class },
 		userAccessible = true, help = "Discover Stochastic BPMN with probabilities derived from alignments")
 
 public class DiscoverStochasticBPMN_Plugin {
@@ -116,9 +118,10 @@ public class DiscoverStochasticBPMN_Plugin {
 			}
 		}
 
-//		GetSBPMN.createSBPMN(bpmn, gatewayMap);
+		translateToSBPMN translator = new translateToSBPMN(bpmn, gatewayMap);
+		StochasticBPMNDiagram sbpmn = translator.createSBPMN();
 
-		return new Object[]{bpmn, calc.getGatewayMap()};
+		return new Object[] {sbpmn, gatewayMap};
 	}
 
 	private void showWarningsandErrors(PluginContext context, BPMN2PetriNetConverterExtension conv) {

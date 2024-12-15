@@ -15,6 +15,7 @@ import org.processmining.discoverstochasticbpmn.models.XORChoiceMap;
 import org.processmining.plugins.converters.bpmn2pn.BPMN2PetriNetConverter;
 import org.processmining.plugins.converters.bpmn2pn.BPMN2PetriNetConverter_Configuration;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
@@ -544,7 +545,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
                 net.addArc(p, t);
                 net.addArc(t, flowMap.get(f));
                 nodeMap.get(g).add(t);
-                gatewayMap.get(g).addChoice((BPMNEdge<BPMNNode, BPMNNode>) f, t,0);
+                gatewayMap.get(g).addChoice((BPMNEdge<BPMNNode, BPMNNode>) f, t, BigDecimal.ZERO);
 //                System.out.println("Added the element, " + t.getLabel() + " to choiceMap...");
             }
         }

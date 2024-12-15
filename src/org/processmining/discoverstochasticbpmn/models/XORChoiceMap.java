@@ -4,15 +4,17 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
 public class XORChoiceMap {
-    private double total = 0;
+    private BigDecimal total = BigDecimal.ZERO;
 
     private final Map<BPMNEdge<BPMNNode, BPMNNode>, TransitionCounts> edgeToTransitionMap = new HashMap<>();
 
-    public void addChoice(BPMNEdge<BPMNNode, BPMNNode> edge, Transition transition, double count) {
+    public void addChoice(BPMNEdge<BPMNNode, BPMNNode> edge, Transition transition, BigDecimal count) {
         edgeToTransitionMap.put(edge, new TransitionCounts(transition, count));
     }
 
@@ -24,13 +26,13 @@ public class XORChoiceMap {
         return edgeToTransitionMap;
     }
 
-    public double getTotal(){
+    public BigDecimal getTotal(){
         return this.total;
     }
 
     public void updateTotal(){
         for(TransitionCounts transitionCounts : edgeToTransitionMap.values()){
-            this.total += transitionCounts.getCount();
+            this.total = this.total.add(transitionCounts.getCount());
         }
     }
 
@@ -44,10 +46,10 @@ public class XORChoiceMap {
 
     public static class TransitionCounts {
         private Transition transition;
-        private double count;
+        private BigDecimal count;
         private double probability;
 
-        public TransitionCounts(Transition transition, double count) {
+        public TransitionCounts(Transition transition, BigDecimal count) {
             this.transition = transition;
             this.count = count;
             this.probability = 0;
@@ -57,7 +59,7 @@ public class XORChoiceMap {
             return transition;
         }
 
-        public double getCount() {
+        public BigDecimal getCount() {
             return count;
         }
 
@@ -69,12 +71,13 @@ public class XORChoiceMap {
             this.transition = t;
         }
 
-        public void setCount(double c){
+        public void setCount(BigDecimal c){
             this.count = c;
         }
 
-        public void setProbability(double total){
-            this.probability = this.count / total;
+        public void setProbability(BigDecimal total){
+            this.probability = this.count.divide(total, 10, RoundingMode.HALF_UP).doubleValue();
         }
     }
 }
+
