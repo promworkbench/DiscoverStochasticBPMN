@@ -43,8 +43,8 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
      * Open UI dialogue to populate the given configuration object with
      * settings chosen by the user.
      *
-     * @param context
-     * @param config
+     * @param context the plugin context
+     * @param config the configuration
      * @return result of the user interaction
      */
     public TaskListener.InteractionResult setParameters(UIPluginContext context, DiscoverStochasticBPMN_Configuration config) {
@@ -53,10 +53,7 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
         return wish;
     }
 
-    /**
-     * @return Configuration as picked in the user interface, call only after
-     *         {@link #getUserChoice(UIPluginContext)} was called
-     */
+
     private void getChosenParameters(DiscoverStochasticBPMN_Configuration config) {
         config.calculateProbabilityUsing = DiscoverStochasticBPMN_Configuration.typeValue.values()[alignmentType.getSelectedIndex()];
     }
@@ -64,8 +61,8 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
     /**
      * display a dialog to ask user what to do
      *
-     * @param context
-     * @return
+     * @param context context of the plugin
+     * @return returns the user's choice
      */
     protected TaskListener.InteractionResult getUserChoice(UIPluginContext context) {
         return context.showConfiguration("Calculate Probabilities from Alignments", this);
@@ -73,8 +70,8 @@ public class DiscoverStochasticBPMN_UI extends ProMPropertiesPanel {
 
     /**
      * Generate proper cancelling information for User.
-     * @param context
-     * @return
+     * @param context context of the plugin
+     * @return returns the cancel message
      */
     protected Object[] userCancel(PluginContext context) {
         return DiscoverStochasticBPMN_Plugin.cancel(context, "The user has cancelled DiscoverStochasticBPMN.");
