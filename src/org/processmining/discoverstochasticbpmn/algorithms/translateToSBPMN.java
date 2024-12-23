@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class translateToSBPMN {
     private final BPMNDiagram bpmn;
@@ -37,7 +38,7 @@ public class translateToSBPMN {
         translateFlows();
         linkFlowsToGateways();
 
-        printExistingNodes();
+//        printExistingNodes();
 
         return stochasticBPMN;
     }
@@ -78,6 +79,7 @@ public class translateToSBPMN {
     }
 
     private void translateGateways() {
+        // If the gateway is XOR, add a stochastic gateway, else add the original gateway
         for (Gateway gateway : bpmn.getGateways()) {
             if (gateway.getGatewayType() == Gateway.GatewayType.DATABASED) {
                 StochasticGatewayWeightedFlow weightedFlow = new StochasticGatewayWeightedFlow();
@@ -94,15 +96,14 @@ public class translateToSBPMN {
 
     private void translateFlows() {
         for (BPMNEdge<BPMNNode, BPMNNode> flow : bpmn.getFlows()) {
+            // Get the corresponding stochastic source and target nodes for the edge
             BPMNNode source = getStochasticNode(flow.getSource());
             BPMNNode target = getStochasticNode(flow.getTarget());
-
+            // If the source is an XOR gateway, add a stochastic flow, else add the original flow
             if (source instanceof Gateway && ((Gateway) source).getGatewayType() == Gateway.GatewayType.DATABASED) {
-                System.out.println("This is a stochastic flow: " + flow.getEdgeID());
                 StochasticFlow stochasticFlow = stochasticBPMN.addStochasticFlow(source, target, flow.getLabel());
                 stochasticFlowMap.put(flow, stochasticFlow);
             } else {
-                System.out.println("This is a normal flow: " + flow.getEdgeID());
                 Flow stochasticFlow = stochasticBPMN.addFlow(source, target, flow.getLabel());
                 stochasticFlowMap.put(flow, stochasticFlow);
             }
@@ -112,17 +113,20 @@ public class translateToSBPMN {
     private void linkFlowsToGateways() {
         for (Gateway gateway : bpmn.getGateways()) {
             XORChoiceMap choiceMap = gatewayMap.get(gateway);
-            StochasticGateway stochasticGateway = (StochasticGateway) stochasticGatewayMap.get(gateway);
+            StochasticGateway stochasticGateway = (StochasticGateway) getStochasticNode(gateway);
                 if (choiceMap != null) {
+                    StochasticGatewayWeightedFlow weightedFlow = stochasticGateway != null ? stochasticGateway.getWeightedFlow() : null;
+                    // For each outgoing edge of the gateway, add a flow weight to the weightedFlow
                     for (BPMNEdge<BPMNNode, BPMNNode> edge : choiceMap.getAllChoices().keySet()) {
-                        BigDecimal weight = choiceMap.getTransitionCounts(edge).getCount();
-                        System.out.println("Calculated weight: " + weight);
                         StochasticFlow stochasticFlow = (StochasticFlow) stochasticFlowMap.get(edge);
-                        StochasticGatewayFlowSet flowSet = new StochasticGatewayFlowSet(edge.getEdgeID().toString());
-                        System.out.println("Edge ID of flow: " + edge.getEdgeID().toString());
-                        System.out.println("Edge ID with his stupid method: " + edge.getAttributeMap().get("Original id").toString());
-                        stochasticGateway.getWeightedFlow().assignFlowWeight(weight, flowSet);
-                        System.out.println(stochasticGateway.getWeight(stochasticFlow));
+                        String id = UUID.randomUUID().toString();
+                        stochasticFlow.getAttributeMap().put("Original id", id);
+                        BigDecimal weight = choiceMap.getTransitionCounts(edge).getCount();
+                        StochasticGatewayFlowSet flowSet = new StochasticGatewayFlowSet(id);
+                        if (weightedFlow != null) {
+                            weightedFlow.assignFlowWeight(weight, flowSet);
+                        }
+                        stochasticFlow.setLabel(stochasticFlow.getLabel());
                     }
                 }
         }
@@ -138,7 +142,7 @@ public class translateToSBPMN {
         }else if (node instanceof Gateway) {
             return stochasticGatewayMap.get(node);
         }
-        return null; // Return null if the node type is not recognized
+        return null;
     }
 
     private void printExistingNodes() {
