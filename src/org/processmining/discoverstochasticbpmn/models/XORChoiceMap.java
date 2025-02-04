@@ -3,6 +3,7 @@ package org.processmining.discoverstochasticbpmn.models;
 import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
 import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.stochasticbpmn.models.stochastic.Probability;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -47,12 +48,12 @@ public class XORChoiceMap {
     public static class TransitionCounts {
         private Transition transition;
         private BigDecimal count;
-        private double probability;
+        private Probability probability;
 
         public TransitionCounts(Transition transition, BigDecimal count) {
             this.transition = transition;
             this.count = count;
-            this.probability = 0;
+            this.probability = Probability.ZERO;
         }
 
         public Transition getTransition() {
@@ -63,7 +64,7 @@ public class XORChoiceMap {
             return count;
         }
 
-        public double getProbability(){
+        public Probability getProbability(){
             return this.probability;
         }
 
@@ -75,8 +76,13 @@ public class XORChoiceMap {
             this.count = c;
         }
 
+        public void incrementCounts(){
+//        System.out.println("Successfully entered the method incrementCounts");
+            this.setCount(this.getCount().add(BigDecimal.ONE));
+        }
+
         public void setProbability(BigDecimal total){
-            this.probability = this.count.divide(total, 10, RoundingMode.HALF_UP).doubleValue();
+            this.probability = Probability.of(this.count.divide(total, 5, RoundingMode.HALF_UP).doubleValue());
         }
     }
 }

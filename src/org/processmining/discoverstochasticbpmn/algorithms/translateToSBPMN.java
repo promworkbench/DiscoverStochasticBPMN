@@ -6,6 +6,7 @@ import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.*;
 import org.processmining.discoverstochasticbpmn.models.XORChoiceMap;
 import org.processmining.stochasticbpmn.models.graphbased.directed.bpmn.stochastic.*;
+import org.processmining.stochasticbpmn.models.stochastic.Probability;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class translateToSBPMN {
     private final BPMNDiagram bpmn;
     private final Map<Gateway, XORChoiceMap> gatewayMap;
+    private final String option;
     private final StochasticBPMNDiagram stochasticBPMN;
     private final Map<Gateway, Gateway> stochasticGatewayMap = new HashMap<>();
     private final Map<BPMNEdge, Flow> stochasticFlowMap = new HashMap<>();
@@ -24,13 +26,14 @@ public class translateToSBPMN {
     private final Map<TextAnnotation, TextAnnotation> stochasticTextAnnotationMap = new HashMap<>();
 
 
-    public translateToSBPMN(BPMNDiagram bpmn, Map<Gateway, XORChoiceMap> gatewayMap){
+    public translateToSBPMN(BPMNDiagram bpmn, Map<Gateway, XORChoiceMap> gatewayMap, String option){
         this.bpmn = bpmn;
         this.gatewayMap = gatewayMap;
+        this.option = option;
         this.stochasticBPMN = new StochasticBPMNDiagramImpl(this.bpmn.getLabel());
     }
 
-    public StochasticBPMNDiagram createSBPMN(){
+    public void createSBPMN(){
         translateActivities();
         translateEvents();
         translateTextAnnotations();
@@ -39,8 +42,6 @@ public class translateToSBPMN {
         linkFlowsToGateways();
 
 //        printExistingNodes();
-
-        return stochasticBPMN;
     }
 
     private void translateActivities() {
@@ -122,9 +123,14 @@ public class translateToSBPMN {
                         String id = UUID.randomUUID().toString();
                         stochasticFlow.getAttributeMap().put("Original id", id);
                         BigDecimal weight = choiceMap.getTransitionCounts(edge).getCount();
+                        Probability probability = choiceMap.getTransitionCounts(edge).getProbability();
                         StochasticGatewayFlowSet flowSet = new StochasticGatewayFlowSet(id);
                         if (weightedFlow != null) {
-                            weightedFlow.assignFlowWeight(weight, flowSet);
+                            if(option.equals("weight")) {
+                                weightedFlow.assignFlowWeight(weight, flowSet);
+                            } else if (option.equals("probability")) {
+                                weightedFlow.assignFlowWeight(probability.getValue(), flowSet);
+                            }
                         }
                         stochasticFlow.setLabel(stochasticFlow.getLabel());
                     }
@@ -144,6 +150,8 @@ public class translateToSBPMN {
         }
         return null;
     }
+
+    public StochasticBPMNDiagram getSBPMN() { return stochasticBPMN; }
 
     private void printExistingNodes() {
         Set<BPMNNode> existingNodes = stochasticBPMN.getNodes();

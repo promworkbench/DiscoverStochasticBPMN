@@ -4,7 +4,6 @@ import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
 import org.processmining.acceptingpetrinet.models.impl.AcceptingPetriNetImpl;
-import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.ProMCanceller;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
@@ -17,13 +16,14 @@ import org.processmining.plugins.inductiveVisualMiner.performance.XEventPerforma
 import org.deckfour.xes.classification.XEventClasses;
 
 public class AlignmentUtil {
-    public static IvMLogNotFiltered alignPetriNetWithLog(PluginContext context, IvMModel model, XLog log) throws Exception {
+    public static IvMLogNotFiltered alignPetriNetWithLog(IvMModel model, XLog log) throws Exception {
         XEventNameClassifier classifier = new XEventNameClassifier();
         XEventPerformanceClassifier performanceClassifier = new XEventPerformanceClassifier(classifier);
         XEventClasses activityEventClasses = XEventClasses.deriveEventClasses(classifier, log);
         XEventClasses performanceEventClasses = XEventClasses.deriveEventClasses(performanceClassifier, log);
         AlignmentComputerImpl alignmentComputer = new AlignmentComputerImpl();
-        ProMCanceller canceller = () -> context.getProgress().isCancelled();
+        ProMCanceller canceller = ProMCanceller.NEVER_CANCEL;
+//        ProMCanceller canceller = () -> context.getProgress().isCancelled();
             return AlignmentPerformance.alignNet(alignmentComputer, model, performanceClassifier, log,
             activityEventClasses, performanceEventClasses, canceller, new IvMDecoratorDefault());
     }

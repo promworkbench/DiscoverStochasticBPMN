@@ -89,11 +89,11 @@ public class DiscoverStochasticBPMN_Plugin {
 
 		// Step 2: Align petri net with log
 		progress.setCaption("Aligning Log to the Petri net");
-		IvMLogNotFiltered alignedLog = null;
+		IvMLogNotFiltered alignedLog;
 		IvMModel model;
 		try {
 			model = AlignmentUtil.getIvMModel(net, m, mf);
-			alignedLog = AlignmentUtil.alignPetriNetWithLog(context, model, log);
+			alignedLog = AlignmentUtil.alignPetriNetWithLog(model, log);
 		} catch (Exception e) {
 			String errorMessage = "Alignment calculation failed due to an exception: " + e.getMessage();
 			showMessage(context, errorMessage);
@@ -102,9 +102,10 @@ public class DiscoverStochasticBPMN_Plugin {
 
 		// Step 3: Calculate gateway probabilities
 		progress.setCaption("Calculating Probabilities from Alignments");
-		GatewayProbabilityCalculator calc = new GatewayProbabilityCalculator(conv.getGatewayMap());
+		GatewayProbabilityCalculator calc = new GatewayProbabilityCalculator(conv.getGatewayMap(), alignedLog, model, config);
 //		System.out.println("Calculating Probabilities from Alignments using the strategy: " + config.calculateProbabilityUsing);
-		Map<Gateway, XORChoiceMap> gatewayMap = calc.calculateXORProbabilities(alignedLog, model, config);
+		calc.calculateXORProbabilities();
+		Map<Gateway, XORChoiceMap> gatewayMap = calc.getGatewayMap();
 
 		// Printing the results in console until the visualisation is fixed
 		System.out.println("Done calculating probabilities. Final result...");
@@ -118,10 +119,15 @@ public class DiscoverStochasticBPMN_Plugin {
 			}
 		}
 
-		translateToSBPMN translator = new translateToSBPMN(bpmn, gatewayMap);
-		StochasticBPMNDiagram sbpmn = translator.createSBPMN();
+		translateToSBPMN translator = new translateToSBPMN(bpmn, gatewayMap, "weight");
+		translator.createSBPMN();
+		translateToSBPMN translator_vis = new translateToSBPMN(bpmn, gatewayMap, "probability");
+		translator_vis.createSBPMN();
 
-		return new Object[] {sbpmn, gatewayMap};
+		StochasticBPMNDiagram sbpmn = translator.getSBPMN();
+		StochasticBPMNDiagram sbpmn_vis = translator_vis.getSBPMN();
+
+		return new Object[] {sbpmn_vis, gatewayMap};
 	}
 
 	private void showWarningsandErrors(PluginContext context, BPMN2PetriNetConverterExtension conv) {
