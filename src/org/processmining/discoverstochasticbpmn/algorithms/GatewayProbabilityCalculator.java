@@ -62,11 +62,10 @@ public class GatewayProbabilityCalculator {
 //                    System.out.println("Found a choice transition");
                     if(strategy.equals(calculationType_SYNCHRONOUS)){
                         int index = move.getIndexInAlignedTrace()+1;
-                        while(model.getNetTransition(trace.get(index).getTreeNode()).isInvisible())
+                        while(index<trace.size() && (trace.get(index).isLogMove() || trace.get(index).isIgnoredModelMove() || model.getNetTransition(trace.get(index).getTreeNode()).isInvisible())) {
                             index += 1;
-                        index += 2;
-//                        System.out.println("Came out of while, index to be checked: " + index);
-                        if(!trace.get(index).isModelMove())
+                        }
+                        if(index == trace.size() || !trace.get(index).isModelMove())
                             transitionCounts.incrementCounts();
                     }
                     else transitionCounts.incrementCounts();
@@ -81,7 +80,7 @@ public class GatewayProbabilityCalculator {
         for (XORChoiceMap choiceMap : gatewayMap.values()) {
             choiceMap.updateTotal();
             choiceMap.updateProbabilities();
-            System.out.println("Updated probabilities for gateway " + k + ": Total=" + choiceMap.getTotal());
+//            System.out.println("Updated probabilities for gateway " + k + ": Total=" + choiceMap.getTotal());
             k += 1;
         }
     }

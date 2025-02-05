@@ -18,7 +18,9 @@ public class translateToSBPMN {
     private final BPMNDiagram bpmn;
     private final Map<Gateway, XORChoiceMap> gatewayMap;
     private final String option;
+
     private final StochasticBPMNDiagram stochasticBPMN;
+
     private final Map<Gateway, Gateway> stochasticGatewayMap = new HashMap<>();
     private final Map<BPMNEdge, Flow> stochasticFlowMap = new HashMap<>();
     private final Map<Activity, Activity> stochasticActivityMap = new HashMap<>();
