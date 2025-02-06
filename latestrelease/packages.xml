@@ -1,6 +1,6 @@
 
 					<packages>
-						<package name="DiscoverStochasticBPMN" version="6.15.8" os="all" url="DiscoverStochasticBPMN/DiscoverStochasticBPMN-6.15.8-all.zip" desc="DiscoverStochasticBPMN" org="RWTH Aachen University" license="GPL" author="Sandhya Velagapudi" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
+						<package name="DiscoverStochasticBPMN" version="6.15.10" os="all" url="DiscoverStochasticBPMN/DiscoverStochasticBPMN-6.15.10-all.zip" desc="DiscoverStochasticBPMN" org="RWTH Aachen University" license="GPL" author="Sandhya Velagapudi" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
 				    	<dependency org="prom" name="ProM-Plugins" rev="latest" changing="true" transitive="true" />
     	<dependency org="prom" name="BasicUtils" rev="latest" changing="true" transitive="true" />
     	<dependency org="prom" name="Widgets" rev="latest" changing="true" transitive="true" />
