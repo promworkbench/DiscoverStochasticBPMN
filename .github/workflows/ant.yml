@@ -41,6 +41,8 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git add latestrelease/
         git status
+        git add latestrelease/*.zip
+        git status
         git commit -m "Add changes"
     - name: Push changes
       uses: ad-m/github-push-action@master
