@@ -4,10 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.ArrayUtils;
-import org.deckfour.xes.classification.XEventNameClassifier;
-import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.model.XLog;
-import org.deckfour.xes.model.XTrace;
 import org.processmining.discoverstochasticbpmn.algorithms.DiscoverProbabilities;
 import org.processmining.discoverstochasticbpmn.algorithms.translateToSBPMN;
 import org.processmining.discoverstochasticbpmn.models.DiscoverStochasticBPMN_Configuration;
@@ -129,7 +126,10 @@ public class ExperimentRunner {
         long discoveryTime = 0;
         long evaluationTime = 0;
         StochasticBPMNDiagram sbpmn;
-        POEMSConformanceCheckingResult result = null;
+        StochasticBPMNDiagram sbpmn_equi;
+        POEMSConformanceCheckingResult ccResult = null;
+        POEMSConformanceCheckingResult ccResult_equi = null;
+        Double result = 0.0;
 
         // Discovering Stochastic BPMN
         long startTime = System.currentTimeMillis();
@@ -140,18 +140,26 @@ public class ExperimentRunner {
             translateToSBPMN translator = new translateToSBPMN(bpmn, gatewayMap, "weight");
             translator.createSBPMN();
             sbpmn = translator.getSBPMN();
+            long endTime = System.currentTimeMillis();
+            discoveryTime += endTime - startTime;
+
+            // Creating additional Stochastic BPMN Diagrams for original BPMN and visualisation
+            translateToSBPMN translator_equi = new translateToSBPMN(bpmn, gatewayMap, "equi-probable");
+            translator_equi.createSBPMN();
+            sbpmn_equi = translator_equi.getSBPMN();
 //                translateToSBPMN translator_exp = new translateToSBPMN(bpmn, gatewayMap, "probability");
 //                translator_exp.createSBPMN();
 //                StochasticBPMNDiagram sbpmn_exp = translator_exp.getSBPMN();
-            long endTime = System.currentTimeMillis();
-            discoveryTime += endTime - startTime;
 
 
             // Evaluating Stochastic BPMN using POEMS Conformance Checker
             startTime = System.currentTimeMillis();
             BpmnPoemsConformanceChecking conformanceChecker = BPMNStochasticConformanceChecking.poems();
             try {
-                result = conformanceChecker.calculateConformance(sbpmn,log);
+                ccResult = conformanceChecker.calculateConformance(sbpmn,log);
+                ccResult_equi = conformanceChecker.calculateConformance(sbpmn_equi,log);
+                result = ccResult.conformanceValue() - ccResult_equi.conformanceValue();
+
             } catch (BpmnNoOptionToCompleteException | BpmnUnboundedException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -159,7 +167,7 @@ public class ExperimentRunner {
             evaluationTime += endTime - startTime;
         }
 
-        return new ExperimentResult(log, bpmn, strategy, result, discoveryTime, evaluationTime);
+        return new ExperimentResult(log, bpmn, strategy, ccResult, ccResult_equi, result, discoveryTime, evaluationTime);
     }
 
     private static class ExperimentResult {
@@ -167,14 +175,18 @@ public class ExperimentRunner {
         private final BPMNDiagram bpmn;
         private final DiscoverStochasticBPMN_Configuration.typeValue strategy;
         private final POEMSConformanceCheckingResult ccResult;
+        private final POEMSConformanceCheckingResult ccResult_equi;
+        private final Double result;
         private final long discoveryTime;
         private final long evaluationTime;
 
-        private ExperimentResult(XLog log, BPMNDiagram bpmn, DiscoverStochasticBPMN_Configuration.typeValue strategy, POEMSConformanceCheckingResult ccResult, long discoveryTime, long evaluationTime) {
+        private ExperimentResult(XLog log, BPMNDiagram bpmn, DiscoverStochasticBPMN_Configuration.typeValue strategy, POEMSConformanceCheckingResult ccResult, POEMSConformanceCheckingResult ccResult_equi, Double result, long discoveryTime, long evaluationTime) {
             this.log = log;
             this.bpmn = bpmn;
             this.strategy = strategy;
             this.ccResult = ccResult;
+            this.ccResult_equi = ccResult_equi;
+            this.result = result;
             this.discoveryTime = discoveryTime;
             this.evaluationTime = evaluationTime;
         }
@@ -312,24 +324,24 @@ public class ExperimentRunner {
     ) {
         stModelInfoTB.put(
                 key,
-                "BPMN Nodes Count",
+                "Number of Nodes",
                 String.valueOf(result.bpmn.getNodes().size())
         );
         stModelInfoTB.put(
                 key,
-                "BPMN Edge Count",
+                "Number of Edges",
                 String.valueOf(result.bpmn.getEdges().size())
         );
         long numSGates = result.bpmn.getNodes().stream().filter(n -> n instanceof StochasticGateway).count();
         long numSEdges = result.bpmn.getEdges().stream().filter(n -> n instanceof StochasticFlow).count();
         stModelInfoTB.put(
                 key,
-                "Stochastic Gates Count",
+                "Number of Stochastic Gates",
                 String.valueOf(numSGates)
         );
         stModelInfoTB.put(
                 key,
-                "Stochastic Edges Count",
+                "Number of Stochastic Edges",
                 String.valueOf(numSEdges)
         );
     }
@@ -342,17 +354,32 @@ public class ExperimentRunner {
         resultsInfoTB.put(
                 key,
                 "Trace/Move Selection Strategy",
-                result.strategy.toString()
+                result.strategy.toString().split("_")[1]
         );
         resultsInfoTB.put(
                 key,
-                "CC Result Lower Bound",
+                "Conformance Lower Bound for BPMN",
+                result.ccResult_equi.getConformanceLowerBound().toString()
+        );
+        resultsInfoTB.put(
+                key,
+                "Conformance Upper Bound for BPMN",
+                result.ccResult_equi.getConformanceUpperBound().toString()
+        );
+        resultsInfoTB.put(
+                key,
+                "Conformance Lower Bound for SBPMN",
                 result.ccResult.getConformanceLowerBound().toString()
         );
         resultsInfoTB.put(
                 key,
-                "CC Result Upper Bound",
+                "Conformance Upper Bound for SBPMN",
                 result.ccResult.getConformanceUpperBound().toString()
+        );
+        resultsInfoTB.put(
+                key,
+                "Increase in Conformance value",
+                result.result.toString()
         );
         resultsInfoTB.put(
                 key,

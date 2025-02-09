@@ -31,6 +31,8 @@ public class XORChoiceMap {
         return this.total;
     }
 
+    public int getNumberOfEdges() { return this.edgeToTransitionMap.size(); }
+
     public void updateTotal(){
         for(TransitionCounts transitionCounts : edgeToTransitionMap.values()){
             this.total = this.total.add(transitionCounts.getCount());

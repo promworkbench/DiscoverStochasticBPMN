@@ -9,6 +9,7 @@ import org.processmining.stochasticbpmn.models.graphbased.directed.bpmn.stochast
 import org.processmining.stochasticbpmn.models.stochastic.Probability;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -132,6 +133,9 @@ public class translateToSBPMN {
                                 weightedFlow.assignFlowWeight(weight, flowSet);
                             } else if (option.equals("probability")) {
                                 weightedFlow.assignFlowWeight(probability.getValue(), flowSet);
+                            } else if (option.equals("equi-probable")) {
+                                BigDecimal equalCount = BigDecimal.ONE.divide(new BigDecimal(choiceMap.getNumberOfEdges()), 5, RoundingMode.HALF_UP);
+                                weightedFlow.assignFlowWeight(equalCount, flowSet);
                             }
                         }
                         stochasticFlow.setLabel(stochasticFlow.getLabel());
