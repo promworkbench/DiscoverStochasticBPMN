@@ -1,6 +1,5 @@
 package org.processmining.discoverstochasticbpmn.plugins;
 
-import java.util.List;
 import java.util.Map;
 
 import org.deckfour.uitopia.api.event.TaskListener;
@@ -12,21 +11,13 @@ import org.processmining.discoverstochasticbpmn.dialogs.DiscoverStochasticBPMN_U
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.Progress;
 import org.processmining.framework.plugin.annotations.Plugin;
+import org.processmining.framework.plugin.annotations.PluginCategory;
+import org.processmining.framework.plugin.annotations.PluginLevel;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
-import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
-import org.processmining.models.graphbased.directed.bpmn.BPMNEdge;
-import org.processmining.models.graphbased.directed.bpmn.BPMNNode;
 import org.processmining.models.graphbased.directed.bpmn.elements.Gateway;
-import org.processmining.models.graphbased.directed.petrinet.Petrinet;
-import org.processmining.models.graphbased.directed.petrinet.elements.Place;
-import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.discoverstochasticbpmn.models.DiscoverStochasticBPMN_Configuration;
 import org.processmining.discoverstochasticbpmn.models.XORChoiceMap;
-import org.processmining.plugins.converters.bpmn2pn.BPMN2PetriNetConverter_Configuration;
-import org.processmining.plugins.inductiveVisualMiner.helperClasses.IvMModel;
-import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMLogNotFiltered;
 import org.processmining.poemsconformancecheckingforbpmn.algorithms.conformance_checking.BPMNStochasticConformanceChecking;
 import org.processmining.poemsconformancecheckingforbpmn.algorithms.conformance_checking.poems.bpmn.BpmnPoemsConformanceChecking;
 import org.processmining.poemsconformancecheckingforbpmn.algorithms.inputs.bpmn.statespace.BpmnNoOptionToCompleteException;
@@ -42,12 +33,19 @@ import javax.swing.*;
  * @author Sandhya Velagapudi Jul 28, 2024
  */
 
-@Plugin(name = "Discover Stochastic BPMN", parameterLabels = { "BPMN Model", "Event Log" },
+@Plugin(name = "Discover Stochastic BPMN",
+		parameterLabels = { "BPMN Diagram", "Event Log" },
 	    returnLabels = { "Stochastic BPMN Diagram", "Gateway Probability Map" }, returnTypes = { StochasticBPMNDiagram.class, Map.class },
-		userAccessible = true, help = "Discover Stochastic BPMN with path probabilities derived from alignments")
+		userAccessible = true,
+		help = "Discover Stochastic BPMN with path probabilities derived from alignments",
+		level = PluginLevel.Regular,
+		categories = PluginCategory.Discovery,
+		handlesCancel = true,
+		url = "https://github.com/promworkbench/DiscoverStochasticBPMN",
+		keywords = "Stochastic BPMN Discovery")
 
 public class DiscoverStochasticBPMN_Plugin {
-	@UITopiaVariant(affiliation = "RWTH Aachen", author = "Sandhya Velagapudi", email = "sandhya.velagapudi@rwth-aachen.de")
+	@UITopiaVariant(affiliation = "RWTH Aachen", author = "Sandhya Velagapudi", email = "sandhya.velagapudi@rwth-aachen.de", website = "https://github.com/promworkbench/DiscoverStochasticBPMN")
 
 	@PluginVariant(
 			variantLabel = "Get Probabilities from BPMN and Event Log",

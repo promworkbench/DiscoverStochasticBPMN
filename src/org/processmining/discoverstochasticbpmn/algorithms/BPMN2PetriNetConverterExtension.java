@@ -26,15 +26,15 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
     /**
      * maps each BPMN control-flow edge to a place
      */
-    private final Map<BPMNEdge<BPMNNode, BPMNNode>, Place> flowMap = new HashMap<BPMNEdge<BPMNNode, BPMNNode>, Place>();
+    private final Map<BPMNEdge<BPMNNode, BPMNNode>, Place> flowMap = new HashMap<>();
     /**
      * maps each BPMN node to a set of Petri net nodes (transitions and places)
      */
-    private final Map<BPMNNode, Set<PetrinetNode>> nodeMap = new HashMap<BPMNNode, Set<PetrinetNode>>();
+    private final Map<BPMNNode, Set<PetrinetNode>> nodeMap = new HashMap<>();
     /**
      * maps each BPMN edge of XOR Gateway to a set of Petri net transitions (silent)
      */
-    private final Map<Gateway, XORChoiceMap> gatewayMap = new HashMap<Gateway, XORChoiceMap>();
+    private final Map<Gateway, XORChoiceMap> gatewayMap = new HashMap<>();
 
     public boolean convert() {
 
@@ -99,7 +99,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
     private void translateEdges() {
         for (BPMNNode n : bpmn.getNodes()) {
             // select only the sequence flow edges, message flows etc. are ignored
-            List<Flow> inFlows = new ArrayList<Flow>();
+            List<Flow> inFlows = new ArrayList<>();
             for (BPMNEdge<? extends BPMNNode, ? extends BPMNNode> e : bpmn.getInEdges(n)) {
                 if (e instanceof Flow) inFlows.add((Flow)e);
             }
@@ -180,7 +180,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
     private void connectToAllInFlows(BPMNNode n, Transition t) {
 
         // gather all places representing the inflows
-        Set<Place> places = new HashSet<Place>();
+        Set<Place> places = new HashSet<>();
         // connect transition to place of incoming edge
         for (BPMNEdge<?, ?> f : bpmn.getInEdges(n)) {
             if (f instanceof Flow) {
@@ -204,7 +204,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
     private void connectToAllOutFlows(BPMNNode n, Transition t) {
 
         // gather all places representing the outflows
-        Set<Place> places = new HashSet<Place>();
+        Set<Place> places = new HashSet<>();
         // connect transition to place of incoming edge
         for (BPMNEdge<?, ?> f : bpmn.getOutEdges(n)) {
             if (f instanceof Flow) {
@@ -308,7 +308,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
      * @param linkToSubprocess a link to the subprocess in which `a` is defined
      */
     private void translateActivity(Activity a, boolean linkToSubprocess) {
-        Set<PetrinetNode> nodeSet = new HashSet<PetrinetNode>();
+        Set<PetrinetNode> nodeSet = new HashSet<>();
         nodeMap.put(a, nodeSet);
 
         Transition t_act = net.addTransition(getLabel(a.getLabel(), "task", "t", true));
@@ -399,8 +399,8 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
                 Set<ContainableDirectedGraphElement> children = ((SubProcess) a).getChildren();
 
                 // get the start and end event of the process
-                List<Event> startEvents = new LinkedList<Event>();
-                List<Event> endEvents = new LinkedList<Event>();
+                List<Event> startEvents = new LinkedList<>();
+                List<Event> endEvents = new LinkedList<>();
                 for (ContainableDirectedGraphElement c : children) {
                     if (c instanceof Event) {
                         Event e = (Event)c;
@@ -487,7 +487,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
      * @return all events that are attached to the given activity
      */
     private List<Event> getBoundaryEvents(Activity a) {
-        List<Event> boundaryEvents = new ArrayList<Event>();
+        List<Event> boundaryEvents = new ArrayList<>();
         for (Event e : bpmn.getEvents()) {
             if (e.getBoundingNode() == a) boundaryEvents.add(e);
         }
@@ -562,7 +562,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
 
     private void translateORGateway(Gateway g) {
 
-        Set<PetrinetNode> nodeSet = new HashSet<PetrinetNode>();
+        Set<PetrinetNode> nodeSet = new HashSet<>();
         nodeMap.put(g, nodeSet);
 
         // OR-join
@@ -596,7 +596,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
             // then compute all subsets by counting to 2^n and using the bitmask of
             // the number to tell which places to include in the subset
             for(int i = 0; i < (1<<n); i++){
-                List<Place> p_subset = new ArrayList<Place>();
+                List<Place> p_subset = new ArrayList<>();
                 for(int j = 0; j < n; j++){
                     if( ((i>>j) & 1) == 1) { 	// bit j is on
                         p_subset.add(p_ins[j]);// add place
@@ -643,7 +643,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
             // then compute all subsets by counting to 2^n and using the bitmask of
             // the number to tell which places to include in the subset
             for(int i = 0; i < (1<<n); i++){
-                List<Place> p_subset = new ArrayList<Place>();
+                List<Place> p_subset = new ArrayList<>();
                 for(int j = 0; j < n; j++){
                     if( ((i>>j) & 1) == 1) { 	// bit j is on
                         p_subset.add(p_outs[j]);// add place
@@ -673,7 +673,7 @@ public class BPMN2PetriNetConverterExtension extends BPMN2PetriNetConverter {
      * @param nodes the corresponding petri net nodes
      */
     private void setNodeMapFor(Map<BPMNNode, Set<PetrinetNode>> nodeMap, BPMNNode n, PetrinetNode ...nodes) {
-        Set<PetrinetNode> nodeSet = new HashSet<PetrinetNode>();
+        Set<PetrinetNode> nodeSet = new HashSet<>();
         Collections.addAll(nodeSet, nodes);
         nodeMap.put(n, nodeSet);
     }

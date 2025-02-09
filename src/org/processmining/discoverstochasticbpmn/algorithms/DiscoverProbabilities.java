@@ -30,8 +30,8 @@ public class DiscoverProbabilities {
     IvMLogNotFiltered alignedLog;
     IvMModel model;
 
-    protected List<String> warnings = new ArrayList<String>();
-    protected List<String> errors = new ArrayList<String>();
+    protected List<String> warnings = new ArrayList<>();
+    protected List<String> errors = new ArrayList<>();
 
     protected DiscoverStochasticBPMN_Configuration config;
 
@@ -39,6 +39,10 @@ public class DiscoverProbabilities {
         this.bpmn = bpmn;
         this.log = log;
         this.config = config;
+    }
+
+    public DiscoverProbabilities(BPMNDiagram bpmn, XLog log, DiscoverStochasticBPMN_Configuration.typeValue strategy) {
+        this(bpmn, log, new DiscoverStochasticBPMN_Configuration(strategy));
     }
 
     public DiscoverProbabilities(BPMNDiagram bpmn, XLog log) {

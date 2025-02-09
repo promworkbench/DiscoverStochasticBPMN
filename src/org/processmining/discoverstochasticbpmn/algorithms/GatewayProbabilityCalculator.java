@@ -11,8 +11,6 @@ import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMLogNotFiltered;
 import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMMove;
 import org.processmining.plugins.inductiveVisualMiner.ivmlog.IvMTrace;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.processmining.discoverstochasticbpmn.models.DiscoverStochasticBPMN_Configuration.typeValue.calculationType_PERFECTLYFIT;
@@ -40,7 +38,7 @@ public class GatewayProbabilityCalculator {
         for (IvMTrace ivMTrace : alignedLog) {
             traceIndex += 1;
             if (includeTrace(ivMTrace)) {
-                System.out.println("Trace " + traceIndex + ": " + Arrays.toString(ivMTrace.toArray()));
+//                System.out.println("Trace " + traceIndex + ": " + Arrays.toString(ivMTrace.toArray()));
                 for (IvMMove move : ivMTrace) {
                     if(!move.isLogMove()){
 //                    System.out.println(model.getNetTransition(move.getTreeNode()).getLabel());

@@ -1,6 +1,7 @@
 # IntelliJ artifacts
 .idea
 DiscoverStochasticBPMN.iml
+/tests/tests.iml
 /bin
 
 /dist
